@@ -20,16 +20,26 @@ const WORD = "rubberstamp";
 // counted as Unicode code points, not only white space, and exactly
 // one word (no whitespace at all). Any violation throws before
 // anything is written, so a bad word can never be graded.
-const trimmed = WORD.trim();
-const codePoints = [...WORD].length;
-if (trimmed.length === 0 || codePoints < 1 || codePoints > 30) {
-  throw new Error(`word is ${codePoints} code points, outside the 1-30 gate`);
-}
-if (/\s/.test(WORD)) {
-  throw new Error(`word contains whitespace: ${JSON.stringify(WORD)}`);
+function assertValidWord(word: string): number {
+  const trimmed = word.trim();
+  const codePoints = [...word].length;
+  if (trimmed.length === 0 || codePoints < 1 || codePoints > 30) {
+    throw new Error(`word is ${codePoints} code points, outside the 1-30 gate`);
+  }
+  if (/\s/.test(word)) {
+    throw new Error(`word contains whitespace: ${JSON.stringify(word)}`);
+  }
+  return codePoints;
 }
 
-const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+const codePoints = assertValidWord(WORD);
+
+// Output directory: $MAKEFUN_OUTPUT_DIR when set, else /output.
+function resolveOutDir(): string {
+  return process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+}
+
+const outDir = resolveOutDir();
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, "entry.txt"), WORD, "utf8");
 
